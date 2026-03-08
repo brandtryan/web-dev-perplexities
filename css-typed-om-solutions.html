@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CSS Typed OM & attributeStyleMap</title>
+    <style>
+        :root {
+            --my-pos: 10;
+        }
+
+        .box {
+            width: 100px;
+            height: 100px;
+            background: royalblue;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box"></div>
+    <script>
+        const box = document.querySelector('.box');
+
+        /**
+         * PERPLEXITY: 
+         * Using `attributeStyleMap.set('--prop', CSS.number(10))` often fails 
+         * because browsers expect a STRING for custom properties, not a 
+         * typed `CSSNumberValue`, even when using the Typed OM API.
+         * 
+         * 
+         * OPEN DEV TOOLS/CONSOLE
+         * You should see error in console!
+         */
+
+        box.attributeStyleMap.set('--my-pos', CSS.number(10));
+
+        /**
+         * SOLUTION: Set the value as a template literal string.
+         * This ensures the browser accepts the input while still 
+         * leveraging the performance of the attributeStyleMap.
+         * 
+         * COMMENT OUT line above that uses CSS.number...
+         * KEEP `const newValue = 50;`(line below) UNCOMMENTED
+         * 
+         * You should see the following in the console:
+         * Success! --my-pos is now: (Object with following key/value pair:)
+         * {0: 50, Length: 1} 
+         * 
+         * IMPORTANT!: reset for next time:
+         * UNCOMMENT line above that uses CSS.number...
+         * KEEP `const newValue = 50;`(line below) UNCOMMENTED
+         */
+
+        const newValue = 50;
+
+        try {
+            /* Directly setting the value as a string bypasses 
+            * the `CSS.number is not a function` or type-mismatch errors. */
+
+            box.attributeStyleMap.set('--my-pos', `${newValue}`);
+            console.log("Success! --my-pos is now:",
+                box.attributeStyleMap.get('--my-pos', '--my-pos'.value));
+        } catch (e) {
+            console.error("Typed OM failed:", e);
+        }
+    </script>
+</body>
+
+</html>
